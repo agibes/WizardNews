@@ -35,65 +35,79 @@ app.get("/", (req, res) => {
 
 app.use(express.static('public'));
 
-app.get( '/posts/:id', (req, res) => {
-  const id = req.params.id;
-  const post = postBank.find(id);
+app.get( '/posts/:id', (req, res, next) => {
+  try {
 
-  if (!post.id) {
-    errorHandler();
-  } else {
-    const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
+    const id = req.params.id;
+    const post = postBank.find(id);
+    
+    if (!post.id) {
+      next({
+        name: "Page Not Found",
+        message: "Sorry, the page you are looking for could not be found.",
+        status: 404
+      })
+    } else {
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
       <title>Wizard News</title>
       <link rel="stylesheet" href="/style.css" />
-    </head>
-    <body>
+      </head>
+      <body>
       <div class="news-list">
-        <header><img src="/logo.png"/>Wizard News
-        <small><a href="/" style="color:white; text-decoration:underline">Go Back</a></small>
-        </header>
-          <div class='news-item'>
-            <p>
-              ${post.title}
-              <small>(by ${post.name})</small>
-              </p>
-              <p>${post.content}</p>  
-          </div>
+      <header><img src="/logo.png"/>Wizard News
+      <small><a href="/" style="color:white; text-decoration:underline">Go Back</a></small>
+      </header>
+      <div class='news-item'>
+      <p>
+      ${post.title}
+      <small>(by ${post.name})</small>
+      </p>
+      <p>${post.content}</p>  
       </div>
-    </body>
-    </html>
-    `
-    res.send(html);
+      </div>
+      </body>
+      </html>
+      `
+      res.send(html);
+    }
+  } catch (error) {
+    next(error)
   }
-});
+  });
+  
+  
+  
+  app.use((err, req, res, next) => {
+    console.log(err);
+    if (err.status == 404) {
 
-
-
-app.use((err, req, res, next) => {
-    const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
+      res.status(404);
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
       <title>Wizard News</title>
       <link rel="stylesheet" href="/style.css" />
-    </head>
-    <body>
+      </head>
+      <body>
       <header><img src="/logo.png"/>Wizard News
       <small><a href="/" style="color:white; text-decoration:underline">Go Back</a></small>
       </header>
       <div class="not-found">
-        <p>404: Page Not Found</p>
+      <p>${err.status}: ${err.message}</p>
       </div>
-    </body>
-    </html>`
-    res.send(html);
-})
-
-
-
-
+      </body>
+      </html>`
+      res.send(html);
+    }
+    })
+    
+    
+    
+    
 app.use(morgan('dev'));
 
 
