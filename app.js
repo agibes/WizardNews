@@ -2,6 +2,7 @@ const postBank = require("./postBank");
 const morgan = require("morgan");
 const express = require("express");
 const app = express();
+app.use(morgan('dev'));
 
 app.get("/", (req, res) => {
   const posts = postBank.list();
@@ -78,8 +79,6 @@ app.get( '/posts/:id', (req, res, next) => {
   }
   });
   
-  
-  
   app.use((err, req, res, next) => {
     console.log(err);
     if (err.status == 404) {
@@ -104,13 +103,6 @@ app.get( '/posts/:id', (req, res, next) => {
       res.send(html);
     }
     })
-    
-    
-    
-    
-app.use(morgan('dev'));
-
-
 
 const {PORT = 1337} = process.env;
 
